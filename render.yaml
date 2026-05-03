@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: aios-demo
+    runtime: static
+    staticPublishPath: .
+    buildCommand: echo "Static demo site"
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache

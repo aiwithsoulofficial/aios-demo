@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIOS Lead Intelligence - AI with Soul</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a1525;
+  --navy-mid: #0F1E36;
+  --navy-card: #111f38;
+  --gold: #C4956A;
+  --gold-light: #D4A882;
+  --cream: #F7E7CE;
+  --cream-muted: rgba(247,231,206,0.5);
+  --cream-dim: rgba(247,231,206,0.25);
+  --green: #00e5a0;
+  --border: rgba(196,149,106,0.18);
+  --border-light: rgba(196,149,106,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { min-height:100vh; background:var(--navy); color:var(--cream); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; height:56px;
+  background:rgba(10,21,37,0.95); border-bottom:1px solid var(--border);
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.topbar-title { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--cream); }
+.topbar-nav { display:flex; gap:4px; }
+.nav-pill { padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:500; color:var(--cream-muted); text-decoration:none; transition:all 0.2s; border:1px solid transparent; }
+.nav-pill:hover { color:var(--cream); border-color:var(--border); }
+.nav-pill.active { color:var(--gold); background:rgba(196,149,106,0.1); border-color:var(--border); }
+.topbar-logo { font-family:'Cormorant Garamond',serif; font-size:0.85rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+
+.page { max-width:1100px; margin:0 auto; padding:40px 24px 60px; }
+
+/* SEARCH */
+.search-area { text-align:center; margin-bottom:48px; }
+.search-eyebrow {
+  font-size:0.65rem; font-weight:600; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--gold-light); margin-bottom:16px;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.search-eyebrow::before, .search-eyebrow::after { content:''; display:block; width:32px; height:1px; background:var(--gold-light); opacity:0.4; }
+.search-heading { font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,3.5vw,2.6rem); font-weight:400; color:var(--cream); margin-bottom:10px; line-height:1.2; }
+.search-heading em { font-style:italic; color:var(--gold); }
+.search-sub { font-size:0.85rem; color:var(--cream-muted); margin-bottom:32px; }
+.search-row {
+  display:flex; gap:0; max-width:580px; margin:0 auto;
+  background:var(--navy-card); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden;
+  transition:border-color 0.3s;
+}
+.search-row:focus-within { border-color:var(--gold); }
+.search-input {
+  flex:1; background:transparent; border:none; outline:none;
+  padding:14px 20px; font-size:0.92rem; color:var(--cream);
+  font-family:'Inter',sans-serif;
+}
+.search-input::placeholder { color:var(--cream-dim); }
+.search-btn {
+  padding:12px 24px; background:linear-gradient(135deg,#D4A882,#C4956A,#B5845C);
+  border:none; cursor:pointer; font-size:0.82rem; font-weight:600; color:white;
+  font-family:'Inter',sans-serif; transition:opacity 0.2s; white-space:nowrap;
+  display:flex; align-items:center; gap:8px;
+}
+.search-btn:hover { opacity:0.9; }
+.search-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* DEMOS */
+.demo-chips { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top:16px; }
+.demo-chip {
+  padding:5px 14px; border-radius:100px; font-size:0.7rem; font-weight:500;
+  color:var(--cream-muted); border:1px solid var(--border-light);
+  cursor:pointer; transition:all 0.2s; background:none;
+  font-family:'Inter',sans-serif;
+}
+.demo-chip:hover { color:var(--gold); border-color:var(--gold); }
+
+/* PROGRESS STEPS */
+.steps-wrap { max-width:680px; margin:0 auto 40px; display:none; }
+.steps-wrap.show { display:block; }
+.step {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:14px 0; border-bottom:1px solid var(--border-light);
+  opacity:0.3; transition:opacity 0.4s;
+}
+.step.active { opacity:1; }
+.step.done { opacity:1; }
+.step-icon {
+  width:32px; height:32px; border-radius:50%;
+  background:var(--navy-card); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; flex-shrink:0; margin-top:1px;
+  transition:all 0.4s;
+}
+.step.active .step-icon { border-color:var(--gold); background:rgba(196,149,106,0.1); }
+.step.done .step-icon { border-color:var(--green); background:rgba(0,229,160,0.1); }
+.step-body { flex:1; }
+.step-label { font-size:0.82rem; font-weight:600; color:var(--cream); margin-bottom:3px; }
+.step-detail { font-size:0.72rem; color:var(--cream-muted); }
+.step-bar-wrap {
+  height:3px; background:rgba(247,231,206,0.08); border-radius:2px;
+  margin-top:8px; overflow:hidden; display:none;
+}
+.step.active .step-bar-wrap { display:block; }
+.step-bar { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); width:0; border-radius:2px; transition:width 0.05s linear; }
+
+/* RESULTS */
+.results { display:none; }
+.results.show {
+  display:grid; grid-template-columns:1fr 1.3fr; gap:20px;
+  animation:fade-up 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.result-card {
+  background:var(--navy-card); border:1px solid var(--border);
+  border-radius:16px; padding:24px 22px;
+  position:relative; overflow:hidden;
+}
+.result-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.result-label {
+  font-size:0.62rem; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+  color:var(--cream-dim); margin-bottom:16px;
+}
+.biz-name { font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:400; color:var(--cream); margin-bottom:4px; }
+.biz-desc { font-size:0.8rem; color:var(--cream-muted); margin-bottom:20px; line-height:1.6; }
+.score-row { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.score-badge {
+  font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:600;
+  color:var(--green); line-height:1;
+}
+.score-label { font-size:0.72rem; color:var(--cream-muted); }
+.score-bar-bg { flex:1; height:5px; background:rgba(247,231,206,0.08); border-radius:3px; overflow:hidden; }
+.score-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--green),#5eefc0); width:0; transition:width 1.2s cubic-bezier(0.16,1,0.3,1); }
+.pain-list { display:flex; flex-direction:column; gap:8px; }
+.pain-item { display:flex; gap:10px; align-items:flex-start; }
+.pain-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; margin-top:5px; }
+.pain-text { font-size:0.75rem; color:var(--cream-muted); line-height:1.5; }
+.pain-text strong { color:var(--cream); font-weight:500; }
+
+/* EMAIL CARD */
+.email-subject {
+  font-size:0.78rem; font-weight:600; color:var(--gold-light);
+  padding:10px 14px; background:rgba(196,149,106,0.08);
+  border-radius:8px; margin-bottom:16px;
+  border:1px solid rgba(196,149,106,0.15);
+}
+.email-subject span { color:var(--cream-dim); font-weight:400; font-size:0.7rem; display:block; margin-bottom:2px; }
+.email-body {
+  font-size:0.78rem; line-height:1.8; color:var(--cream-muted);
+  white-space:pre-wrap;
+}
+.cursor { display:inline-block; width:2px; height:13px; background:var(--gold); animation:blink 0.8s step-end infinite; vertical-align:middle; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.copy-btn {
+  margin-top:16px; padding:9px 18px;
+  background:transparent; border:1px solid var(--border);
+  border-radius:8px; color:var(--cream-muted); font-size:0.72rem;
+  font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s;
+}
+.copy-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* Reset */
+.reset-btn {
+  display:block; margin:32px auto 0; padding:10px 28px;
+  background:transparent; border:1px solid var(--border);
+  border-radius:100px; color:var(--cream-muted); font-size:0.75rem;
+  font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s;
+}
+.reset-btn:hover { border-color:var(--gold); color:var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">AIOS Lead Intelligence</div>
+  </div>
+  <nav class="topbar-nav">
+    <a href="mission-control.html" class="nav-pill">Mission Control</a>
+    <a href="lead-engine.html" class="nav-pill active">Lead Intelligence</a>
+    <a href="content-pipeline.html" class="nav-pill">Content Pipeline</a>
+  </nav>
+  <div class="topbar-logo">AI WITH SOUL</div>
+</div>
+
+<div class="page">
+  <div class="search-area">
+    <div class="search-eyebrow">Lead Intelligence Engine</div>
+    <h1 class="search-heading">Type a business. Watch AIOS<br><em>research it automatically.</em></h1>
+    <p class="search-sub">Enter any business name and see exactly what happens when a lead enters your system.</p>
+    <div class="search-row">
+      <input class="search-input" id="searchInput" type="text" placeholder="Enter a business name..." value="">
+      <button class="search-btn" id="searchBtn" onclick="runResearch()">
+        Research
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="demo-chips">
+      <button class="demo-chip" onclick="setDemo('Glass Ceiling Coaching')">Glass Ceiling Coaching</button>
+      <button class="demo-chip" onclick="setDemo('Rellia Creative Agency')">Rellia Creative Agency</button>
+      <button class="demo-chip" onclick="setDemo('Bloom Wellness Studio')">Bloom Wellness Studio</button>
+      <button class="demo-chip" onclick="setDemo('Northside Financial Group')">Northside Financial Group</button>
+    </div>
+  </div>
+
+  <div class="steps-wrap" id="stepsWrap">
+    <div class="step" id="step1">
+      <div class="step-icon" id="si1">🌐</div>
+      <div class="step-body">
+        <div class="step-label">Scanning website &amp; online presence</div>
+        <div class="step-detail" id="sd1">Searching for digital footprint, services, and positioning...</div>
+        <div class="step-bar-wrap"><div class="step-bar" id="sb1"></div></div>
+      </div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-icon" id="si2">👤</div>
+      <div class="step-body">
+        <div class="step-label">Profiling the business &amp; founder</div>
+        <div class="step-detail" id="sd2">Identifying decision-makers, team size, and growth stage...</div>
+        <div class="step-bar-wrap"><div class="step-bar" id="sb2"></div></div>
+      </div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-icon" id="si3">💡</div>
+      <div class="step-body">
+        <div class="step-label">Identifying pain points &amp; gaps</div>
+        <div class="step-detail" id="sd3">Analysing workflows, bottlenecks, and AI opportunities...</div>
+        <div class="step-bar-wrap"><div class="step-bar" id="sb3"></div></div>
+      </div>
+    </div>
+    <div class="step" id="step4">
+      <div class="step-icon" id="si4">✍️</div>
+      <div class="step-body">
+        <div class="step-label">Writing personalised outreach email</div>
+        <div class="step-detail" id="sd4">Drafting a message that speaks directly to their situation...</div>
+        <div class="step-bar-wrap"><div class="step-bar" id="sb4"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="result-card">
+      <div class="result-label">Business Profile</div>
+      <div class="biz-name" id="bizName">Glass Ceiling Coaching</div>
+      <div class="biz-desc" id="bizDesc">Executive and career coaching for ambitious women navigating corporate environments. Tina runs the business solo, serving mid-to-senior level professionals across Australia and the UK.</div>
+      <div class="score-row">
+        <div>
+          <div class="score-badge" id="scoreNum">91</div>
+          <div class="score-label">Intent score</div>
+        </div>
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreBar"></div></div>
+      </div>
+      <div class="result-label" style="margin-bottom:12px">Pain points detected</div>
+      <div class="pain-list" id="painList">
+        <div class="pain-item"><div class="pain-dot"></div><div class="pain-text"><strong>Manual intake &amp; onboarding</strong> - no automated system for new client intake, discovery calls booked manually</div></div>
+        <div class="pain-item"><div class="pain-dot"></div><div class="pain-text"><strong>No lead nurture sequence</strong> - website enquiries falling through with no follow-up automation</div></div>
+        <div class="pain-item"><div class="pain-dot"></div><div class="pain-text"><strong>Content created manually</strong> - posting inconsistently, no repurposing system from session insights</div></div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-label">Personalised Outreach - Ready to Send</div>
+      <div class="email-subject">
+        <span>Subject line</span>
+        <span id="emailSubject">Something I noticed about Glass Ceiling Coaching</span>
+      </div>
+      <div class="email-body" id="emailBody"></div>
+      <button class="copy-btn" onclick="copyEmail()">Copy email</button>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="resetBtn" style="display:none" onclick="resetAll()">Run another search</button>
+</div>
+
+<script>
+const demos = {
+  'Glass Ceiling Coaching': {
+    desc: 'Executive and career coaching for ambitious women navigating corporate environments. Tina runs the business solo, serving mid-to-senior level professionals across Australia and the UK.',
+    score: 91, scorePct: 91,
+    pains: [
+      { title: 'Manual intake & onboarding', detail: 'no automated system for new client intake, discovery calls booked manually' },
+      { title: 'No lead nurture sequence', detail: 'website enquiries falling through with no follow-up automation' },
+      { title: 'Content created manually', detail: 'posting inconsistently, no repurposing system from session insights' },
+    ],
+    subject: 'Something I noticed about Glass Ceiling Coaching',
+    email: `Hey Tina,
+
+I came across Glass Ceiling Coaching and the work you're doing with ambitious women in corporate - it's genuinely needed right now.
+
+I noticed a few things that stood out to me from the outside looking in - and I think there's a version of your business that runs significantly smoother without you being in every part of it.
+
+Specifically: your intake process, your follow-up with people who enquire but don't book, and your content rhythm.
+
+I build AI operating systems for businesses like yours. Not tools you have to manage - a complete system installed in your business that handles the repetitive side of things so you can focus entirely on your clients.
+
+Mila V. - a wellness coach I built for - had her best revenue month ever in the first 30 days. Spent zero dollars on ads.
+
+Worth a 20-minute conversation to see if it's a fit?
+
+Kelly x`
+  },
+  'Rellia Creative Agency': {
+    desc: 'Boutique branding and creative agency run by Narelle. Specialises in brand identity, websites, and visual strategy for service businesses across Australia.',
+    score: 87, scorePct: 87,
+    pains: [
+      { title: 'Project management overhead', detail: 'manually coordinating briefs, revisions, and approvals across multiple clients' },
+      { title: 'Client communication bottleneck', detail: 'Narelle is the single point of contact for all client updates and check-ins' },
+      { title: 'No automated new business follow-up', detail: 'enquiries handled manually, inconsistent response time' },
+    ],
+    subject: 'A thought on how Rellia runs behind the scenes',
+    email: `Hey Narelle,
+
+Rellia's work is stunning - the brand identity approach you take is rare.
+
+From the outside, I'd guess the thing that takes most of your energy isn't the creative work itself - it's everything around it. Client coordination, follow-up, keeping projects moving while you're heads-down on the actual work.
+
+I build AI systems for creative business owners that handle exactly that layer. Client comms, project updates, new enquiry follow-up, onboarding - all automated so the business runs without you being the bottleneck.
+
+I'd love to show you what I'd build specifically for Rellia - it's a 20-minute conversation and I'll map it all out.
+
+Kelly x`
+  },
+  'Bloom Wellness Studio': {
+    desc: 'Yoga, breathwork and somatic healing studio. Multi-practitioner team running in-person and online sessions, retreats, and memberships across two locations.',
+    score: 78, scorePct: 78,
+    pains: [
+      { title: 'Booking and rebooking is manual', detail: 'follow-up for lapsed members and class reminders handled by the team' },
+      { title: 'Membership churn with no automation', detail: 'no automated re-engagement when members go quiet or cancel' },
+      { title: 'Retreat promotion relies on manual outreach', detail: 'no automated pipeline from interest to booking for signature events' },
+    ],
+    subject: 'The part of Bloom that\'s probably costing you the most energy',
+    email: `Hey,
+
+I've been following what Bloom is doing - the somatic work especially. Really needed right now.
+
+Running a multi-practitioner studio is a lot to hold. I'm guessing the thing that takes the most invisible energy is the stuff that happens between sessions - the follow-up, the rebooking, the member comms, the retreat promotion cycle.
+
+I build AI systems that handle all of that automatically. One of my clients went from manually chasing every lapsed member to having a system that re-engages, rebooking and all, without her touching it.
+
+Worth 20 minutes to see what that would look like for Bloom?
+
+Kelly x`
+  },
+  'Northside Financial Group': {
+    desc: 'Independent financial planning practice serving high-net-worth families and business owners. Founder-led with a small team, focused on estate planning and business succession.',
+    score: 83, scorePct: 83,
+    pains: [
+      { title: 'Client review process is manual', detail: 'annual review scheduling, document collection, and prep done by hand across the team' },
+      { title: 'Referral follow-up inconsistent', detail: 'warm referrals not being nurtured systematically, relying on memory' },
+      { title: 'Compliance documentation overhead', detail: 'meeting notes, SOA tracking, and client updates still largely manual' },
+    ],
+    subject: 'Something I\'d build differently at Northside',
+    email: `Hi,
+
+I came across Northside Financial Group - the succession planning focus is exactly where I'd expect the highest-value, most time-intensive work to sit.
+
+In practices like yours, the invisible drain is usually everything that wraps around the actual advice - client review coordination, referral follow-up, documentation, keeping partners across the same information.
+
+I build AI operating systems for professional service businesses. Not off-the-shelf tools - a custom infrastructure installed specifically for your firm that removes the admin drag from your team's day.
+
+Would love to show you what that looks like in practice. 20 minutes, no commitment.
+
+Kelly x`
+  }
+};
+
+function setDemo(name) {
+  document.getElementById('searchInput').value = name;
+}
+
+function runResearch() {
+  const name = document.getElementById('searchInput').value.trim();
+  if (!name) return;
+  const data = demos[name] || demos['Glass Ceiling Coaching'];
+
+  document.getElementById('searchBtn').disabled = true;
+  document.getElementById('stepsWrap').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('resetBtn').style.display = 'none';
+
+  const steps = ['step1','step2','step3','step4'];
+  const icons = ['si1','si2','si3','si4'];
+  const bars = ['sb1','sb2','sb3','sb4'];
+  const details = ['sd1','sd2','sd3','sd4'];
+  const doneText = [
+    `Found website, LinkedIn, social presence, and service pages`,
+    `${name} · Founder-led · Growth stage · Service business`,
+    `${data.pains.length} pain points identified · High AIOS fit`,
+    `Email drafted · Personalised to their specific situation`
+  ];
+  const doneIcons = ['✓','✓','✓','✓'];
+
+  steps.forEach(s => { document.getElementById(s).classList.remove('active','done'); });
+
+  function runStep(i) {
+    if (i >= steps.length) {
+      showResults(name, data);
+      return;
+    }
+    const el = document.getElementById(steps[i]);
+    el.classList.add('active');
+    const bar = document.getElementById(bars[i]);
+    let w = 0;
+    const interval = setInterval(() => {
+      w += 2;
+      bar.style.width = w + '%';
+      if (w >= 100) {
+        clearInterval(interval);
+        el.classList.remove('active');
+        el.classList.add('done');
+        document.getElementById(icons[i]).textContent = '✓';
+        document.getElementById(details[i]).textContent = doneText[i];
+        setTimeout(() => runStep(i + 1), 200);
+      }
+    }, 16);
+  }
+  runStep(0);
+}
+
+function showResults(name, data) {
+  document.getElementById('bizName').textContent = name;
+  document.getElementById('bizDesc').textContent = data.desc;
+  document.getElementById('scoreNum').textContent = data.score;
+  document.getElementById('emailSubject').textContent = data.subject;
+
+  const painList = document.getElementById('painList');
+  painList.innerHTML = data.pains.map(p => `
+    <div class="pain-item"><div class="pain-dot"></div><div class="pain-text"><strong>${p.title}</strong> - ${p.detail}</div></div>
+  `).join('');
+
+  const results = document.getElementById('results');
+  results.classList.add('show');
+  document.getElementById('resetBtn').style.display = 'block';
+
+  setTimeout(() => {
+    document.getElementById('scoreBar').style.width = data.scorePct + '%';
+  }, 300);
+
+  typeEmail(data.email);
+}
+
+function typeEmail(text) {
+  const el = document.getElementById('emailBody');
+  el.innerHTML = '<span class="cursor"></span>';
+  let i = 0;
+  const speed = 18;
+  function type() {
+    if (i < text.length) {
+      const cursor = el.querySelector('.cursor');
+      cursor.insertAdjacentText('beforebegin', text[i]);
+      i++;
+      setTimeout(type, speed);
+    } else {
+      const cursor = el.querySelector('.cursor');
+      if (cursor) cursor.remove();
+    }
+  }
+  type();
+}
+
+function copyEmail() {
+  const body = document.getElementById('emailBody').textContent;
+  const subject = document.getElementById('emailSubject').textContent;
+  navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy email', 2000);
+  });
+}
+
+function resetAll() {
+  document.getElementById('searchBtn').disabled = false;
+  document.getElementById('stepsWrap').classList.remove('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+  ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('active','done'));
+  ['sb1','sb2','sb3','sb4'].forEach(b => { document.getElementById(b).style.width = '0'; });
+  const iconDefaults = ['🌐','👤','💡','✍️'];
+  ['si1','si2','si3','si4'].forEach((s,i) => document.getElementById(s).textContent = iconDefaults[i]);
+  const detailDefaults = [
+    'Searching for digital footprint, services, and positioning...',
+    'Identifying decision-makers, team size, and growth stage...',
+    'Analysing workflows, bottlenecks, and AI opportunities...',
+    'Drafting a message that speaks directly to their situation...'
+  ];
+  ['sd1','sd2','sd3','sd4'].forEach((s,i) => document.getElementById(s).textContent = detailDefaults[i]);
+  document.getElementById('emailBody').innerHTML = '';
+  document.getElementById('scoreBar').style.width = '0';
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runResearch();
+});
+</script>
+</body>
+</html>

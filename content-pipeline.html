@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIOS Content Pipeline - AI with Soul</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0a1525;
+  --navy-mid: #0F1E36;
+  --navy-card: #111f38;
+  --gold: #C4956A;
+  --gold-light: #D4A882;
+  --cream: #F7E7CE;
+  --cream-muted: rgba(247,231,206,0.5);
+  --cream-dim: rgba(247,231,206,0.25);
+  --green: #00e5a0;
+  --purple: #a78bfa;
+  --border: rgba(196,149,106,0.18);
+  --border-light: rgba(196,149,106,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { min-height:100vh; background:var(--navy); color:var(--cream); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px; height:56px;
+  background:rgba(10,21,37,0.95); border-bottom:1px solid var(--border);
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.topbar-title { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--cream); }
+.topbar-nav { display:flex; gap:4px; }
+.nav-pill { padding:6px 14px; border-radius:100px; font-size:0.72rem; font-weight:500; color:var(--cream-muted); text-decoration:none; transition:all 0.2s; border:1px solid transparent; }
+.nav-pill:hover { color:var(--cream); border-color:var(--border); }
+.nav-pill.active { color:var(--gold); background:rgba(196,149,106,0.1); border-color:var(--border); }
+.topbar-logo { font-family:'Cormorant Garamond',serif; font-size:0.85rem; color:var(--cream-dim); letter-spacing:0.15em; text-transform:uppercase; }
+
+.page { max-width:1100px; margin:0 auto; padding:40px 24px 60px; }
+
+.page-header { text-align:center; margin-bottom:48px; }
+.eyebrow {
+  font-size:0.65rem; font-weight:600; letter-spacing:2.5px; text-transform:uppercase;
+  color:var(--gold-light); margin-bottom:16px;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.eyebrow::before, .eyebrow::after { content:''; display:block; width:32px; height:1px; background:var(--gold-light); opacity:0.4; }
+.page-heading { font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,3.5vw,2.6rem); font-weight:400; color:var(--cream); margin-bottom:10px; }
+.page-heading em { font-style:italic; color:var(--gold); }
+.page-sub { font-size:0.85rem; color:var(--cream-muted); }
+
+/* PIPELINE STAGES */
+.pipeline-row {
+  display:flex; align-items:stretch; gap:0;
+  background:var(--navy-card); border:1px solid var(--border);
+  border-radius:16px; overflow:hidden; margin-bottom:32px;
+}
+.stage {
+  flex:1; padding:20px 16px; text-align:center;
+  border-right:1px solid var(--border-light);
+  position:relative; transition:all 0.4s;
+  opacity:0.35;
+}
+.stage:last-child { border-right:none; }
+.stage.done { opacity:1; }
+.stage.active { opacity:1; background:rgba(196,149,106,0.06); }
+.stage-icon { font-size:1.4rem; margin-bottom:8px; }
+.stage-title { font-size:0.72rem; font-weight:600; color:var(--cream); margin-bottom:4px; }
+.stage-meta { font-size:0.62rem; color:var(--cream-dim); }
+.stage-badge {
+  display:inline-block; margin-top:8px;
+  padding:3px 10px; border-radius:100px;
+  font-size:0.6rem; font-weight:600; letter-spacing:0.5px;
+  opacity:0;
+  transition:opacity 0.4s;
+}
+.stage.done .stage-badge { opacity:1; }
+.badge-done { background:rgba(0,229,160,0.12); color:var(--green); border:1px solid rgba(0,229,160,0.25); }
+.badge-active { background:rgba(196,149,106,0.12); color:var(--gold-light); border:1px solid var(--border); }
+.stage-progress {
+  position:absolute; bottom:0; left:0; height:3px;
+  background:linear-gradient(90deg, var(--gold), var(--gold-light));
+  width:0; transition:width 0.1s linear;
+}
+
+/* RUN BUTTON */
+.run-wrap { text-align:center; margin-bottom:40px; }
+.run-btn {
+  padding:14px 36px; border-radius:100px;
+  background:linear-gradient(135deg,#D4A882,#C4956A,#B5845C);
+  border:none; cursor:pointer; font-size:0.88rem; font-weight:600; color:white;
+  font-family:'Inter',sans-serif;
+  display:inline-flex; align-items:center; gap:10px;
+  box-shadow:0 4px 20px rgba(196,149,106,0.3);
+  transition:all 0.25s;
+}
+.run-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(196,149,106,0.4); }
+.run-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.run-btn .spinner { width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; display:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* OUTPUT SECTIONS */
+.output-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+.output-card {
+  background:var(--navy-card); border:1px solid var(--border-light);
+  border-radius:14px; overflow:hidden;
+  opacity:0; transform:translateY(12px);
+  transition:opacity 0.5s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.output-card.show { opacity:1; transform:translateY(0); }
+.output-card-header {
+  padding:12px 16px;
+  border-bottom:1px solid var(--border-light);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.output-card-title { font-size:0.7rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--cream-dim); }
+.output-card-badge {
+  font-size:0.62rem; font-weight:600; padding:3px 10px; border-radius:100px;
+}
+.badge-green { background:rgba(0,229,160,0.1); color:var(--green); }
+.badge-purple { background:rgba(167,139,250,0.12); color:var(--purple); }
+.badge-gold { background:rgba(196,149,106,0.12); color:var(--gold-light); }
+.output-card-body { padding:16px; }
+
+/* TRANSCRIPT */
+.transcript-text {
+  font-size:0.72rem; line-height:1.9; color:var(--cream-muted);
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+}
+.transcript-text mark {
+  background:rgba(196,149,106,0.2); color:var(--gold-light);
+  border-radius:3px; padding:1px 3px; font-style:normal;
+}
+
+/* CLIPS */
+.clip-list { display:flex; flex-direction:column; gap:10px; }
+.clip-item {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:11px 12px; background:rgba(247,231,206,0.03);
+  border:1px solid var(--border-light); border-radius:8px;
+}
+.clip-num {
+  width:24px; height:24px; border-radius:50%; flex-shrink:0;
+  background:rgba(196,149,106,0.15); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; font-weight:700; color:var(--gold);
+}
+.clip-body { flex:1; }
+.clip-time { font-size:0.65rem; font-weight:600; color:var(--gold-light); margin-bottom:3px; font-variant-numeric:tabular-nums; }
+.clip-title { font-size:0.75rem; font-weight:600; color:var(--cream); margin-bottom:2px; }
+.clip-desc { font-size:0.68rem; color:var(--cream-dim); }
+.clip-duration { font-size:0.62rem; color:var(--cream-dim); background:rgba(247,231,206,0.06); padding:2px 7px; border-radius:4px; }
+
+/* CAPTIONS */
+.caption-tabs { display:flex; gap:4px; margin-bottom:14px; }
+.cap-tab {
+  padding:5px 12px; border-radius:100px; font-size:0.68rem; font-weight:500;
+  border:1px solid var(--border-light); background:none;
+  color:var(--cream-muted); cursor:pointer; font-family:'Inter',sans-serif;
+  transition:all 0.2s;
+}
+.cap-tab.active { color:var(--gold); border-color:var(--gold); background:rgba(196,149,106,0.1); }
+.caption-text {
+  font-size:0.76rem; line-height:1.7; color:var(--cream-muted);
+  white-space:pre-wrap; min-height:80px;
+}
+
+/* SCHEDULE */
+.schedule-list { display:flex; flex-direction:column; gap:6px; }
+.schedule-item {
+  display:flex; align-items:center; gap:12px;
+  padding:9px 12px; background:rgba(247,231,206,0.03);
+  border:1px solid var(--border-light); border-radius:8px;
+}
+.sched-platform {
+  font-size:0.65rem; font-weight:700; letter-spacing:0.5px;
+  padding:3px 8px; border-radius:4px; min-width:80px; text-align:center;
+}
+.plat-li { background:rgba(0,119,181,0.15); color:#60a5fa; }
+.plat-ig { background:rgba(225,48,108,0.12); color:#f472b6; }
+.plat-tt { background:rgba(255,0,80,0.12); color:#fb7185; }
+.plat-fb { background:rgba(66,103,178,0.12); color:#818cf8; }
+.sched-time { font-size:0.72rem; color:var(--cream-muted); font-variant-numeric:tabular-nums; }
+.sched-title { font-size:0.72rem; color:var(--cream-dim); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sched-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+/* RESET */
+.reset-btn {
+  display:none; margin:32px auto 0;
+  padding:10px 28px; background:transparent;
+  border:1px solid var(--border); border-radius:100px;
+  color:var(--cream-muted); font-size:0.75rem;
+  font-family:'Inter',sans-serif; cursor:pointer; transition:all 0.2s;
+}
+.reset-btn:hover { border-color:var(--gold); color:var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">AIOS Content Pipeline</div>
+  </div>
+  <nav class="topbar-nav">
+    <a href="mission-control.html" class="nav-pill">Mission Control</a>
+    <a href="lead-engine.html" class="nav-pill">Lead Intelligence</a>
+    <a href="content-pipeline.html" class="nav-pill active">Content Pipeline</a>
+  </nav>
+  <div class="topbar-logo">AI WITH SOUL</div>
+</div>
+
+<div class="page">
+  <div class="page-header">
+    <div class="eyebrow">Content Pipeline</div>
+    <h1 class="page-heading">Record once.<br><em>AIOS does the rest.</em></h1>
+    <p class="page-sub">One raw video becomes a week of content across every platform. Automatically.</p>
+  </div>
+
+  <div class="pipeline-row">
+    <div class="stage" id="st1">
+      <div class="stage-icon">🎥</div>
+      <div class="stage-title">Raw Video</div>
+      <div class="stage-meta">47 min recording</div>
+      <div class="stage-badge badge-done" id="sb1">Uploaded</div>
+      <div class="stage-progress" id="sp1"></div>
+    </div>
+    <div class="stage" id="st2">
+      <div class="stage-icon">📝</div>
+      <div class="stage-title">Transcription</div>
+      <div class="stage-meta">Full transcript</div>
+      <div class="stage-badge badge-done" id="sb2">Complete</div>
+      <div class="stage-progress" id="sp2"></div>
+    </div>
+    <div class="stage" id="st3">
+      <div class="stage-icon">✂️</div>
+      <div class="stage-title">Clip Finder</div>
+      <div class="stage-meta">Best moments</div>
+      <div class="stage-badge badge-done" id="sb3">3 clips found</div>
+      <div class="stage-progress" id="sp3"></div>
+    </div>
+    <div class="stage" id="st4">
+      <div class="stage-icon">✍️</div>
+      <div class="stage-title">Captions</div>
+      <div class="stage-meta">Per platform</div>
+      <div class="stage-badge badge-done" id="sb4">12 written</div>
+      <div class="stage-progress" id="sp4"></div>
+    </div>
+    <div class="stage" id="st5">
+      <div class="stage-icon">📅</div>
+      <div class="stage-title">Scheduled</div>
+      <div class="stage-meta">All platforms</div>
+      <div class="stage-badge badge-done" id="sb5">8 posts queued</div>
+      <div class="stage-progress" id="sp5"></div>
+    </div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="run-btn" id="runBtn" onclick="runPipeline()">
+      <div class="spinner" id="spinner"></div>
+      <span id="runLabel">Run Pipeline</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <div class="output-grid">
+    <div class="output-card" id="oc1">
+      <div class="output-card-header">
+        <div class="output-card-title">Transcript Sample</div>
+        <div class="output-card-badge badge-green">Highlights marked</div>
+      </div>
+      <div class="output-card-body">
+        <div class="transcript-text">
+"...the reason most business owners feel so exhausted isn't the big decisions. <mark>It's the thousand small things that nobody sees - the follow-up, the rescheduling, the email you've written four times this week.</mark> That's where your energy is going. And that's exactly what we can give back to you...
+
+...when I say AI Operating System, I mean <mark>a system that runs the parts of your business that don't require you</mark> to be brilliant. Because your brilliance is the thing that should be protected..."
+        </div>
+      </div>
+    </div>
+
+    <div class="output-card" id="oc2">
+      <div class="output-card-header">
+        <div class="output-card-title">Identified Clips</div>
+        <div class="output-card-badge badge-gold">3 best moments</div>
+      </div>
+      <div class="output-card-body">
+        <div class="clip-list">
+          <div class="clip-item">
+            <div class="clip-num">1</div>
+            <div class="clip-body">
+              <div class="clip-time">02:14 - 03:45</div>
+              <div class="clip-title">"The thousand small things stealing your energy"</div>
+              <div class="clip-desc">High emotion, relatable hook - ideal for Reels/TikTok</div>
+            </div>
+            <div class="clip-duration">1m 31s</div>
+          </div>
+          <div class="clip-item">
+            <div class="clip-num">2</div>
+            <div class="clip-body">
+              <div class="clip-time">18:32 - 19:58</div>
+              <div class="clip-title">"What an AI Operating System actually is"</div>
+              <div class="clip-desc">Clear explanation - strong for LinkedIn and YouTube</div>
+            </div>
+            <div class="clip-duration">1m 26s</div>
+          </div>
+          <div class="clip-item">
+            <div class="clip-num">3</div>
+            <div class="clip-body">
+              <div class="clip-time">38:44 - 40:18</div>
+              <div class="clip-title">"3x revenue in 30 days - Mila's story"</div>
+              <div class="clip-desc">Social proof, outcome-led - highest conversion potential</div>
+            </div>
+            <div class="clip-duration">1m 34s</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="output-grid">
+    <div class="output-card" id="oc3">
+      <div class="output-card-header">
+        <div class="output-card-title">Captions Written</div>
+        <div class="output-card-badge badge-purple">4 platforms</div>
+      </div>
+      <div class="output-card-body">
+        <div class="caption-tabs">
+          <button class="cap-tab active" onclick="switchCap(this,'li')">LinkedIn</button>
+          <button class="cap-tab" onclick="switchCap(this,'ig')">Instagram</button>
+          <button class="cap-tab" onclick="switchCap(this,'tt')">TikTok</button>
+          <button class="cap-tab" onclick="switchCap(this,'fb')">Facebook</button>
+        </div>
+        <div class="caption-text" id="capText">There's a version of your business where you open your laptop and everything is already handled.
+
+Follow-ups sent. Leads researched. Content posted. Invoices out.
+
+That's what an AI Operating System does. Not a tool. Not another app. A complete infrastructure installed in your business that runs the parts that don't require you.
+
+This is what I build for founders who are tired of being the bottleneck in their own business.
+
+If that's you - drop a comment or book a call below.
+
+#AIStrategy #BusinessAutomation #ClaudeAI #Founders</div>
+      </div>
+    </div>
+
+    <div class="output-card" id="oc4">
+      <div class="output-card-header">
+        <div class="output-card-title">Publishing Schedule</div>
+        <div class="output-card-badge badge-green">8 posts queued</div>
+      </div>
+      <div class="output-card-body">
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <div class="sched-platform plat-li">LinkedIn</div>
+            <div class="sched-time">Mon 9:00 AM</div>
+            <div class="sched-title">Clip 2 - What an AI Operating System actually is</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-ig">Instagram</div>
+            <div class="sched-time">Mon 12:00 PM</div>
+            <div class="sched-title">Clip 1 - The thousand small things</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-tt">TikTok</div>
+            <div class="sched-time">Tue 7:00 AM</div>
+            <div class="sched-title">Clip 1 - The thousand small things</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-li">LinkedIn</div>
+            <div class="sched-time">Wed 9:00 AM</div>
+            <div class="sched-title">Clip 3 - Mila's 3x revenue story</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-ig">Instagram</div>
+            <div class="sched-time">Thu 12:00 PM</div>
+            <div class="sched-title">Clip 3 - Mila's 3x revenue story</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-tt">TikTok</div>
+            <div class="sched-time">Fri 7:00 AM</div>
+            <div class="sched-title">Clip 2 - What an AI Operating System is</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-fb">Facebook</div>
+            <div class="sched-time">Sat 10:00 AM</div>
+            <div class="sched-title">Long-form text post - AIOS explainer</div>
+            <div class="sched-dot"></div>
+          </div>
+          <div class="schedule-item">
+            <div class="sched-platform plat-li">LinkedIn</div>
+            <div class="sched-time">Sun 8:00 AM</div>
+            <div class="sched-title">Article: The AI system that runs my business</div>
+            <div class="sched-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="reset-btn" id="resetBtn" onclick="resetPipeline()">Run another video</button>
+</div>
+
+<script>
+const captions = {
+  li: `There's a version of your business where you open your laptop and everything is already handled.
+
+Follow-ups sent. Leads researched. Content posted. Invoices out.
+
+That's what an AI Operating System does. Not a tool. Not another app. A complete infrastructure installed in your business that runs the parts that don't require you.
+
+This is what I build for founders who are tired of being the bottleneck in their own business.
+
+If that's you - drop a comment or book a call below.
+
+#AIStrategy #BusinessAutomation #ClaudeAI #Founders`,
+  ig: `Record once. Get a week of content. ✨
+
+One 47-min session → 3 clips → 8 posts → scheduled across every platform automatically.
+
+This is AIOS. Your AI Operating System.
+
+Not a tool you manage. A system that runs your content while you run your business.
+
+Link in bio to see what yours would look like. 👆
+
+#ContentStrategy #AIAutomation #BusinessOwner #FounderLife`,
+  tt: `POV: you recorded a session, uploaded it, and AIOS turned it into an entire week of content
+
+No editing. No captioning. No scheduling.
+
+Just results.
+
+This is what an AI Operating System does for your business 🔥
+
+Comment DEMO and I'll show you yours`,
+  fb: `What if you never had to think about content again?
+
+One recording. Uploaded once. AIOS extracts the best moments, writes captions for every platform, and schedules everything - automatically.
+
+This is what I build for business owners who are done doing everything manually.
+
+47-minute session → 8 pieces of content → posted across LinkedIn, Instagram, TikTok and Facebook for a full week.
+
+Interested? Book a free strategy call and I'll map out exactly what your AIOS would look like.`
+};
+
+function switchCap(btn, key) {
+  document.querySelectorAll('.cap-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('capText').textContent = captions[key];
+}
+
+const stageData = [
+  { progress: 'sp1', stage: 'st1', badge: 'sb1', label: 'Uploaded', delay: 0 },
+  { progress: 'sp2', stage: 'st2', badge: 'sb2', label: 'Complete', delay: 1200 },
+  { progress: 'sp3', stage: 'st3', badge: 'sb3', label: '3 clips found', delay: 2400 },
+  { progress: 'sp4', stage: 'st4', badge: 'sb4', label: '12 written', delay: 3600 },
+  { progress: 'sp5', stage: 'st5', badge: 'sb5', label: '8 posts queued', delay: 4800 },
+];
+
+const outputCards = ['oc1','oc2','oc3','oc4'];
+const outputDelays = [5200, 5600, 6000, 6400];
+
+function animateStage(data) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const stEl = document.getElementById(data.stage);
+      stEl.classList.add('active');
+      const bar = document.getElementById(data.progress);
+      let w = 0;
+      const interval = setInterval(() => {
+        w += 1.2;
+        bar.style.width = Math.min(w, 100) + '%';
+        if (w >= 100) {
+          clearInterval(interval);
+          stEl.classList.remove('active');
+          stEl.classList.add('done');
+          document.getElementById(data.badge).textContent = data.label;
+          resolve();
+        }
+      }, 10);
+    }, data.delay);
+  });
+}
+
+function runPipeline() {
+  const btn = document.getElementById('runBtn');
+  const spinner = document.getElementById('spinner');
+  const label = document.getElementById('runLabel');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Processing...';
+
+  document.querySelectorAll('.stage').forEach(s => { s.classList.remove('done','active'); });
+  document.querySelectorAll('.stage-progress').forEach(p => { p.style.width = '0'; });
+  document.querySelectorAll('.stage-badge').forEach(b => { b.style.opacity = '0'; });
+  outputCards.forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('resetBtn').style.display = 'none';
+
+  stageData.forEach(d => animateStage(d));
+
+  outputCards.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('show');
+    }, outputDelays[i]);
+  });
+
+  setTimeout(() => {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Run Again';
+    document.getElementById('resetBtn').style.display = 'block';
+  }, 7200);
+}
+
+function resetPipeline() {
+  document.querySelectorAll('.stage').forEach(s => { s.classList.remove('done','active'); });
+  document.querySelectorAll('.stage-progress').forEach(p => { p.style.width = '0'; });
+  document.querySelectorAll('.stage-badge').forEach(b => { b.style.opacity = '0'; });
+  outputCards.forEach(id => document.getElementById(id).classList.remove('show'));
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('runBtn').disabled = false;
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('runLabel').textContent = 'Run Pipeline';
+}
+
+// Show outputs on first load
+window.addEventListener('load', () => {
+  stageData.forEach(d => {
+    document.getElementById(d.stage).classList.add('done');
+    document.getElementById(d.progress).style.width = '100%';
+    document.getElementById(d.badge).style.opacity = '1';
+  });
+  outputCards.forEach((id, i) => {
+    setTimeout(() => document.getElementById(id).classList.add('show'), i * 150);
+  });
+});
+</script>
+</body>
+</html>
