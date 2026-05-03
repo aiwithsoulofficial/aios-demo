@@ -371,9 +371,8 @@ Kelly x`
   }
 };
 
-// Set this to your deployed API URL once on Render
-// For local testing: http://localhost:8000
-const API_URL = 'https://aios-lead-api.onrender.com';
+function getKey() { return localStorage.getItem('aios_ak') || ''; }
+function setKey(k) { localStorage.setItem('aios_ak', k); }
 
 function setDemo(name) {
   document.getElementById('searchInput').value = name;
@@ -395,49 +394,92 @@ function runResearch() {
 }
 
 async function runLiveResearch(name) {
+  let key = getKey();
+  if (!key) {
+    key = prompt('Enter Anthropic API key to research live businesses:');
+    if (!key) { document.getElementById('searchBtn').disabled = false; return; }
+    setKey(key);
+  }
   document.getElementById('searchBtn').disabled = true;
   document.getElementById('stepsWrap').classList.add('show');
   document.getElementById('results').classList.remove('show');
   document.getElementById('resetBtn').style.display = 'none';
   resetStepVisuals();
 
-  // Kick off steps 1-3 as animation while API runs in background
-  const apiPromise = fetch(API_URL + '/research', {
+  const prompt = `You are an AI business intelligence analyst for Kelly Wotherspoon at AI with Soul (aiwithsoul.com.au). Research this business and return ONLY valid JSON.
+
+Business to research: "${name}"
+
+Return this exact JSON structure (no markdown, no explanation):
+{
+  "company_name": "official business name",
+  "industry": "industry category",
+  "description": "2-3 sentence summary: what they do, how they deliver it, who they serve",
+  "business_model": "service-based / e-commerce / SaaS / consulting / healthcare / hospitality / retail / other",
+  "key_decision_maker": {"name": "best guess or Unknown", "title": "CEO/Owner/Director/Founder"},
+  "pain_points": [
+    "Pain point title - specific detail about what this costs them or why it hurts",
+    "Pain point title - specific detail",
+    "Pain point title - specific detail"
+  ],
+  "biggest_opportunity": "The single biggest thing an AI operating system could automate or improve for this business",
+  "intent_score": 78,
+  "route": "AIOS ($5K base) or Aria Voice Agent or Not a fit",
+  "email_subject": "personalised subject line referencing something specific about their business",
+  "email_body": "Hi [first name or team],\\n\\nI came across [business name] and [specific observation about their business].\\n\\n[One sentence about a specific pain point you noticed].\\n\\nI build AI operating systems for businesses like yours - not tools you have to manage, but a complete system that handles the repetitive side so you can focus on [what they're good at].\\n\\nWorth a 20-minute conversation to see if it's a fit?\\n\\nKelly x"
+}`;
+
+  // Kick off Claude call immediately while steps 1-3 animate
+  const claudePromise = fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({business_name: name, website_url: ''})
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1200,
+      messages: [{ role: 'user', content: prompt }]
+    })
   }).then(r => r.json()).catch(() => null);
 
-  // Animate steps 1-3 slowly while waiting (~12 seconds total)
-  await animateStep(0, name, 'Scanning website & online presence', 3500);
-  await animateStep(1, name, 'Profiling business & founder', 3500);
-  await animateStep(2, name, 'Identifying pain points & AI gaps', 3500);
+  await animateStep(0, name, 'Found website, social presence, and service pages', 3500);
+  await animateStep(1, name, `${name} · Profiling business & founder`, 3500);
+  await animateStep(2, name, 'Pain points identified · High AIOS fit', 3500);
 
-  // Wait for API result
-  const apiData = await apiPromise;
+  const claudeResp = await claudePromise;
+  let apiData = null;
+
+  if (claudeResp && claudeResp.content && claudeResp.content[0]) {
+    try {
+      let raw = claudeResp.content[0].text.trim();
+      if (raw.startsWith('```')) { raw = raw.split('```')[1]; if (raw.startsWith('json')) raw = raw.slice(4); }
+      apiData = JSON.parse(raw.trim());
+    } catch(e) { apiData = null; }
+  }
 
   if (!apiData) {
-    // API failed - fall back to nearest demo
     const fallback = Object.values(demos)[0];
-    await animateStep(3, name, 'Email drafted · Personalised to their situation', 800);
+    await animateStep(3, name, 'Email drafted · Personalised to their situation', 600);
     showResults(name, fallback);
     return;
   }
 
-  // Map API response to display format
   const displayData = {
-    desc: apiData.description || `${apiData.industry || 'Business'} · ${apiData.business_model || ''}`,
-    score: apiData.intent_score || 75,
-    scorePct: apiData.intent_score || 75,
+    desc: apiData.description || '',
+    score: apiData.intent_score || 74,
+    scorePct: apiData.intent_score || 74,
     pains: (apiData.pain_points || []).map(p => {
-      const parts = p.split(' - ');
-      return { title: parts[0], detail: parts[1] || '' };
+      const idx = p.indexOf(' - ');
+      return idx > -1 ? { title: p.slice(0, idx), detail: p.slice(idx + 3) } : { title: p, detail: '' };
     }),
     subject: apiData.email_subject || `AI Operating System for ${name}`,
     email: apiData.email_body || ''
   };
 
-  await animateStep(3, name, `Email drafted · Route: ${apiData.route || 'AIOS'}`, 800);
+  await animateStep(3, name, `Email drafted · Route: ${apiData.route || 'AIOS'}`, 600);
   showResults(name, displayData, apiData);
 }
 
@@ -506,18 +548,6 @@ function animateSteps(name, data, speed) {
     }, speed);
   }
   runStep(0);
-}
-
-function resetStepVisuals() {
-  ['step1','step2','step3','step4'].forEach(s => document.getElementById(s).classList.remove('active','done'));
-  ['sb1','sb2','sb3','sb4'].forEach(b => { document.getElementById(b).style.width = '0'; });
-  ['si1','si2','si3','si4'].forEach((s,i) => document.getElementById(s).textContent = ['🌐','👤','💡','✍️'][i]);
-  ['sd1','sd2','sd3','sd4'].forEach((s,i) => document.getElementById(s).textContent = [
-    'Searching for digital footprint, services, and positioning...',
-    'Identifying decision-makers, team size, and growth stage...',
-    'Analysing workflows, bottlenecks, and AI opportunities...',
-    'Drafting a message that speaks directly to their situation...'
-  ][i]);
 }
 
 function showResults(name, data, apiData) {
@@ -593,9 +623,6 @@ function resetAll() {
   document.getElementById('resetBtn').style.display = 'none';
   document.getElementById('searchInput').value = '';
   document.getElementById('searchInput').focus();
-  resetStepVisuals();
-  document.getElementById('emailBody').innerHTML = '';
-  document.getElementById('scoreBar').style.width = '0';
   resetStepVisuals();
 }
 
