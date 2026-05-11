@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pre-Call Brief | New Lead</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FAF6EF;
+      --cream-dark: #F0EAE0;
+      --gold: #C9A44A;
+      --gold-light: #E6BF68;
+      --dark: #1A1714;
+      --dark-mid: #2C2820;
+      --green: #2D6A4F;
+      --green-bg: #D8F3DC;
+      --yellow: #7B5E00;
+      --yellow-bg: #FFF3CD;
+      --text: #2C2820;
+      --muted: #7A7068;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* HERO */
+    .hero {
+      background: var(--dark);
+      padding: 48px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,164,74,0.18) 0%, transparent 70%);
+    }
+    .hero-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 6vw, 44px);
+      color: #FAF6EF;
+      font-weight: 700;
+      line-height: 1.15;
+      position: relative;
+    }
+    .hero h1 span { color: var(--gold-light); }
+    .hero-sub {
+      margin-top: 10px;
+      font-size: 15px;
+      color: rgba(255,255,255,0.55);
+      position: relative;
+    }
+    .hero-pill {
+      display: inline-block;
+      margin-top: 20px;
+      background: rgba(201,164,74,0.15);
+      border: 1px solid rgba(201,164,74,0.35);
+      color: var(--gold-light);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    /* MAIN LAYOUT */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    /* STAT STRIP */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 24px 0;
+    }
+    .stat-card {
+      background: var(--dark);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--gold-light);
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 5px;
+    }
+
+    /* ONE-LINE READ */
+    .one-liner {
+      background: linear-gradient(135deg, var(--dark-mid), var(--dark));
+      border-left: 3px solid var(--gold);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      color: rgba(255,255,255,0.88);
+      font-size: 15px;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* SECTION */
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(201,164,74,0.3), transparent);
+    }
+
+    /* CARD */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .card + .card { margin-top: 10px; }
+
+    /* SERVICE PILLS */
+    .service-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .service-pill {
+      background: var(--cream-dark);
+      border-radius: 10px;
+      padding: 14px 14px;
+    }
+    .service-pill .sp-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .service-pill .sp-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .service-pill .sp-note {
+      display: inline-block;
+      margin-top: 6px;
+      background: var(--gold);
+      color: white;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* FLAGS */
+    .flags-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .flag-box {
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .flag-box.green {
+      background: var(--green-bg);
+      border: 1px solid rgba(45,106,79,0.2);
+    }
+    .flag-box.yellow {
+      background: var(--yellow-bg);
+      border: 1px solid rgba(123,94,0,0.2);
+    }
+    .flag-box h4 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .flag-box.green h4 { color: var(--green); }
+    .flag-box.yellow h4 { color: var(--yellow); }
+    .flag-item {
+      font-size: 12.5px;
+      line-height: 1.5;
+      margin-bottom: 7px;
+      padding-left: 16px;
+      position: relative;
+    }
+    .flag-item::before {
+      content: '●';
+      position: absolute;
+      left: 0;
+      font-size: 8px;
+      top: 4px;
+    }
+    .flag-box.green .flag-item::before { color: var(--green); }
+    .flag-box.yellow .flag-item::before { color: var(--yellow); }
+
+    /* DIAGNOSIS */
+    .diag-list { list-style: none; }
+    .diag-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    .diag-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .diag-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--dark);
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .diag-title {
+      font-weight: 600;
+      font-size: 13.5px;
+      margin-bottom: 3px;
+    }
+    .diag-body {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* CALL PLAYBOOK */
+    .play-step {
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .play-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .play-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 32px;
+      text-align: center;
+    }
+    .play-title {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .play-body {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .play-quote {
+      margin-top: 8px;
+      background: var(--cream-dark);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-style: italic;
+      color: var(--dark);
+      line-height: 1.5;
+    }
+
+    /* QUESTIONS */
+    .q-list { list-style: none; }
+    .q-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(0,0,0,0.08);
+      align-items: flex-start;
+    }
+    .q-item:last-child { border-bottom: none; }
+    .q-bullet {
+      color: var(--gold);
+      font-size: 18px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .q-text {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--dark);
+    }
+
+    /* FIT METER */
+    .fit-card {
+      background: var(--dark);
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .fit-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 8px;
+    }
+    .fit-score {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+    .fit-descriptor {
+      font-size: 14px;
+      color: rgba(255,255,255,0.65);
+      margin-top: 6px;
+      margin-bottom: 20px;
+    }
+    .fit-bar-wrap {
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .fit-bar {
+      height: 100%;
+      width: 78%;
+      background: linear-gradient(to right, var(--gold), var(--gold-light));
+      border-radius: 999px;
+    }
+    .fit-offer {
+      background: rgba(201,164,74,0.12);
+      border: 1px solid rgba(201,164,74,0.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: left;
+    }
+    .fit-offer-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .fit-offer-text {
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+    }
+
+    /* CONTACT STRIP */
+    .contact-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .contact-item {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .contact-item-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .contact-item-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .contact-item-value a {
+      color: var(--dark);
+      text-decoration: none;
+    }
+
+    /* REDACTED */
+    .redacted {
+      display: inline-block;
+      background: var(--dark);
+      color: transparent;
+      border-radius: 4px;
+      user-select: none;
+      filter: blur(0px);
+      position: relative;
+      min-width: 120px;
+      height: 1em;
+      vertical-align: middle;
+    }
+    .redacted::after {
+      content: 'REDACTED';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.35);
+      font-style: normal;
+      font-weight: 700;
+    }
+    .redacted-block {
+      background: var(--dark);
+      border-radius: 6px;
+      padding: 10px 14px;
+      position: relative;
+      overflow: hidden;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    .redacted-block::after {
+      content: '██████████████';
+      color: rgba(255,255,255,0.15);
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+    .redacted-block .redacted-label {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.3);
+      font-weight: 700;
+    }
+    .confidential-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(201,164,74,0.15);
+      border: 1px solid rgba(201,164,74,0.3);
+      color: var(--gold-light);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid rgba(0,0,0,0.07);
+      margin-top: 40px;
+    }
+
+    @media (max-width: 480px) {
+      .stat-strip { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+      .stat-value { font-size: 18px; }
+      .flags-grid { grid-template-columns: 1fr; }
+      .service-grid { grid-template-columns: 1fr; }
+      .contact-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">Pre-Call Intelligence Brief</div>
+    <div style="position:relative;display:inline-block;margin-bottom:8px;">
+      <div class="confidential-badge">● Client Confidential</div>
+    </div>
+    <h1><span style="display:inline-block;background:rgba(255,255,255,0.08);border-radius:8px;padding:4px 18px;color:transparent;filter:blur(8px);user-select:none;min-width:280px;">Emily Witt-Morrisby</span></h1>
+    <div class="hero-sub"><span style="display:inline-block;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 16px;color:transparent;filter:blur(6px);user-select:none;min-width:180px;">Space Between Wellness</span> &nbsp;·&nbsp; Mentorship Discovery Call</div>
+    <div class="hero-pill">Word of mouth referral &nbsp;·&nbsp; May 2026</div>
+  </div>
+
+  <div class="container">
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="stat-value">&lt;$5K</div>
+        <div class="stat-label">Monthly Rev</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Offer Streams</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">WOM</div>
+        <div class="stat-label">Lead Source</div>
+      </div>
+    </div>
+
+    <!-- ONE LINER -->
+    <div class="one-liner">
+      Real brand, real framework, real offer stack. The foundation exists. She just hasn't built the bridge between audience engagement and paying clients - and she knows it.
+    </div>
+
+    <!-- CONTACT -->
+    <div class="section">
+      <div class="section-title">Contact</div>
+      <div class="contact-strip">
+        <div class="contact-item">
+          <div class="contact-item-label">Phone (preferred)</div>
+          <div class="contact-item-value">
+            <span style="display:inline-block;background:#1A1714;border-radius:4px;padding:3px 10px;color:transparent;filter:blur(5px);user-select:none;font-size:13px;">+61 4XX XXX XXX</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Email</div>
+          <div class="contact-item-value">
+            <span style="display:inline-block;background:#1A1714;border-radius:4px;padding:3px 10px;color:transparent;filter:blur(5px);user-select:none;font-size:13px;">xxxxx@gmail.com</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Personal IG</div>
+          <div class="contact-item-value">
+            <span style="display:inline-block;background:#1A1714;border-radius:4px;padding:3px 10px;color:transparent;filter:blur(5px);user-select:none;font-size:13px;">@handle</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Brand IG</div>
+          <div class="contact-item-value">
+            <span style="display:inline-block;background:#1A1714;border-radius:4px;padding:3px 10px;color:transparent;filter:blur(5px);user-select:none;font-size:13px;">@brandhandle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHAT SHE'S BUILT -->
+    <div class="section">
+      <div class="section-title">What She's Built</div>
+      <div class="service-grid">
+        <div class="service-pill">
+          <div class="sp-title">90-Min Clarity Reset</div>
+          <div class="sp-desc">Nervous system mapping, limiting beliefs, personalised tools</div>
+        </div>
+        <div class="service-pill">
+          <div class="sp-title">6-Week Coaching Series</div>
+          <div class="sp-desc">3x deep sessions + email support. Her SBW framework</div>
+          <span class="sp-note">Application-based</span>
+        </div>
+        <div class="service-pill">
+          <div class="sp-title">Sound Bath Reset</div>
+          <div class="sp-desc">Somatic support, waitlist-based, add-on or standalone</div>
+        </div>
+        <div class="service-pill">
+          <div class="sp-title">Corporate Workshops</div>
+          <div class="sp-desc">Burnout prevention for businesses and nonprofits</div>
+          <span class="sp-note">B2B potential</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top:10px; font-size:13px; color: var(--muted); line-height:1.6;">
+        <strong style="color:var(--dark)">Her framework:</strong> Recognise &rarr; Restore &rarr; Realign &rarr; Reclaim &nbsp;|&nbsp;
+        <strong style="color:var(--dark)">Brand values:</strong> Playfulness, Curiosity, Empathy, Non-judgmental, Creativity, Respect &nbsp;|&nbsp;
+        <strong style="color:var(--dark)">Also on MindBody</strong> (in-person/studio presence) &nbsp;|&nbsp;
+        <strong style="color:var(--dark)">No pricing on website</strong> (the tell)
+      </div>
+    </div>
+
+    <!-- REAL DIAGNOSIS -->
+    <div class="section">
+      <div class="section-title">The Real Problem</div>
+      <div class="card">
+        <ul class="diag-list">
+          <li class="diag-item">
+            <div class="diag-num">1</div>
+            <div>
+              <div class="diag-title">Pricing confidence block</div>
+              <div class="diag-body">No prices anywhere on her website. She's probably having awkward money conversations or losing people who won't enquire without a number.</div>
+            </div>
+          </li>
+          <li class="diag-item">
+            <div class="diag-num">2</div>
+            <div>
+              <div class="diag-title">Broken conversion funnel</div>
+              <div class="diag-body">Free consultation is the only call-to-action. That's a cold ask with no middle step. She needs a lead magnet &rarr; email sequence &rarr; warm offer path.</div>
+            </div>
+          </li>
+          <li class="diag-item">
+            <div class="diag-num">3</div>
+            <div>
+              <div class="diag-title">Three streams, no priority order</div>
+              <div class="diag-body">1:1 coaching, group sound baths, corporate workshops - all equal weight. She's spread thin and probably confusing the audience on who she's really for.</div>
+            </div>
+          </li>
+          <li class="diag-item">
+            <div class="diag-num">4</div>
+            <div>
+              <div class="diag-title">Solo + ADHD + no systems</div>
+              <div class="diag-body">Everything lives in her head. Content, enquiries, admin, delivery - all manually managed. This is the energy leak she can feel but can't name.</div>
+            </div>
+          </li>
+          <li class="diag-item">
+            <div class="diag-num">5</div>
+            <div>
+              <div class="diag-title">Content works. The path from content to booking doesn't.</div>
+              <div class="diag-body">She has traction from educational content. The content is doing its job. What's broken is the journey from "liked your post" to "here's my card."</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FLAGS -->
+    <div class="section">
+      <div class="section-title">Signal Check</div>
+      <div class="flags-grid">
+        <div class="flag-box green">
+          <h4>&#x2714; Green Flags</h4>
+          <div class="flag-item">Word of mouth referral - trust pre-installed</div>
+          <div class="flag-item">Real brand with genuine differentiation</div>
+          <div class="flag-item">4 revenue streams already built</div>
+          <div class="flag-item">Psychology-backed, not just vibes</div>
+          <div class="flag-item">Wants AI & automation - open, not resistant</div>
+          <div class="flag-item">ADHD systems is Kelly's exact zone</div>
+          <div class="flag-item">B2B workshop arm = high-ticket upside</div>
+          <div class="flag-item">MindBody listing = some real-world presence</div>
+        </div>
+        <div class="flag-box yellow">
+          <h4>&#x26A0; Watch Points</h4>
+          <div class="flag-item">Under $5K/mo - price will be a conversation</div>
+          <div class="flag-item">"I'd like to chat first" - not committed yet</div>
+          <div class="flag-item">No pricing on site = money block to address</div>
+          <div class="flag-item">Blog empty - funnel is thin</div>
+          <div class="flag-item">Application answers cut off - testing the water</div>
+          <div class="flag-item">Two email addresses, two domains - fragmented</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALL PLAYBOOK -->
+    <div class="section">
+      <div class="section-title">Call Playbook</div>
+      <div class="card">
+        <div class="play-step">
+          <div class="play-icon">🎯</div>
+          <div>
+            <div class="play-title">Mode: Diagnose, don't pitch</div>
+            <div class="play-body">She wants to feel heard first. She's managing ADHD, solo overwhelm, and a conversion gap that probably makes her feel like she's doing something wrong. She isn't. Tell her that early.</div>
+          </div>
+        </div>
+        <div class="play-step">
+          <div class="play-icon">🔓</div>
+          <div>
+            <div class="play-title">Open with the reframe</div>
+            <div class="play-body">Before she even explains the problem, meet her where she is:</div>
+            <div class="play-quote">"You've built something real - the brand, the framework, the offer stack. The problem isn't visibility or even your content. The problem is what happens between someone discovering you and paying you. Once we fix that part, the revenue follows."</div>
+          </div>
+        </div>
+        <div class="play-step">
+          <div class="play-icon">💰</div>
+          <div>
+            <div class="play-title">If she pushes on price</div>
+            <div class="play-body">Lead with ROI, not the number. She already has an engaged audience. The content is working. This is plumbing, not building from scratch.</div>
+            <div class="play-quote">"You already have the audience. We're not starting from zero. If we convert even two or three more clients per month from your existing reach, the investment pays itself back in month one."</div>
+          </div>
+        </div>
+        <div class="play-step">
+          <div class="play-icon">🧠</div>
+          <div>
+            <div class="play-title">Nervous system match</div>
+            <div class="play-body">She works in trauma-informed, somatic space. Match her energy - regulated, warm, unhurried. No high-pressure energy. She'll feel it immediately if you're selling rather than listening.</div>
+          </div>
+        </div>
+        <div class="play-step">
+          <div class="play-icon">📌</div>
+          <div>
+            <div class="play-title">Find her referral source</div>
+            <div class="play-body">She came via word of mouth. Find out who sent her. That connection is gold for how you frame the relationship.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="section">
+      <div class="section-title">Questions to Ask</div>
+      <div class="card">
+        <ul class="q-list">
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"Walk me through a typical week - how are you showing up in the business and what's eating most of your time?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"When someone finds you through your content, what actually happens next? What's the path from their comment or follow to booking with you?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"Do you have pricing on your website? How do you handle that conversation when someone asks?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"What does your audience say they love about your content - and what happens when you try to actually sell something?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"Out of the four things you offer - 1:1, the 6-week series, sound baths, corporate - which one lights you up most and which one feels most like a drain?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"You mentioned ADHD-friendly systems. What does your current system actually look like - where do enquiries land, how do you track them?"</div>
+          </li>
+          <li class="q-item">
+            <div class="q-bullet">→</div>
+            <div class="q-text">"Who referred you to me? I want to make sure I understand the context they shared."</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- FIT + OFFER -->
+    <div class="section">
+      <div class="section-title">Fit Score &amp; Recommended Offer</div>
+      <div class="fit-card">
+        <div class="fit-label">Mentorship Fit</div>
+        <div class="fit-score">7.8</div>
+        <div class="fit-descriptor">Strong fit &nbsp;·&nbsp; Price is the only conversation</div>
+        <div class="fit-bar-wrap"><div class="fit-bar"></div></div>
+        <div class="fit-offer">
+          <div class="fit-offer-label">Recommended Starting Point</div>
+          <div class="fit-offer-text">
+            Mentorship at $5,500 entry point with a clear 3-month scope: offer clarity + pricing confidence + lead funnel + ADHD-friendly systems + AI automation foundations. Payment plan if needed to get her in the door. Corporate workshop arm is a natural upsell once she's earning more consistently.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERESTS SHE FLAGGED -->
+    <div class="section">
+      <div class="section-title">What She Said She Wants</div>
+      <div class="card" style="display:flex; flex-wrap:wrap; gap:8px; padding:16px;">
+        <span style="background:var(--cream-dark);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">Spiritual Development</span>
+        <span style="background:var(--cream-dark);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">Human Design</span>
+        <span style="background:var(--cream-dark);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">Astrology &amp; Tarot</span>
+        <span style="background:var(--dark);color:var(--gold-light);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">Business Strategy</span>
+        <span style="background:var(--dark);color:var(--gold-light);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">AI &amp; Automation</span>
+        <span style="background:var(--green-bg);color:var(--green);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">ADHD-friendly systems</span>
+        <span style="background:var(--green-bg);color:var(--green);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:500;">Consistent client conversion</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Pre-Call Brief &nbsp;·&nbsp; Client details redacted &nbsp;·&nbsp; Kelly Wotherspoon / AI with Soul
+  </div>
+
+</body>
+</html>
